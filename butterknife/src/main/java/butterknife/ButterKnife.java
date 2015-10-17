@@ -19,6 +19,8 @@ import java.util.Map;
 /**
  * Field and method binding for Android views. Use this class to simplify finding views and
  * attaching listeners by binding them with annotations.
+ * 成员变量与方法的注解针对Android中的View  使用这个类简化寻找视图以及
+ * 附加监听器  通过给监听器添加上相应的注解
  * <p>
  * Finding views from your activity is as easy as:
  * <pre><code>
@@ -79,23 +81,28 @@ import java.util.Map;
  * </code></pre>
  */
 public final class ButterKnife {
+  //创建实体对象的方法不向外暴露
   private ButterKnife() {
     throw new AssertionError("No instances.");
   }
 
   /** An unbinder contract that can be bind with {@link butterknife.Unbinder}. */
   @SuppressWarnings("unused") // Used by generated code.
+  //解绑定的接口
   public interface Unbinder {
     void unbind();
   }
 
   /** An action that can be applied to a list of views. */
+  //内部支持的数据结构是继承View的数据类型
   public interface Action<T extends View> {
     /** Apply the action on the {@code view} which is at {@code index} in the list. */
+    //将这个action应用到在指定索引的集合中的View的元素
     void apply(@NonNull T view, int index);
   }
 
   /** A setter that can apply a value to a list of views. */
+  //这是一个setter方法 能够将一个数值设置给一个集合视图中的指定索引的元素
   public interface Setter<T extends View, V> {
     /** Set the {@code value} on the {@code view} which is at {@code index} in the list. */
     void set(@NonNull T view, V value, int index);
@@ -104,7 +111,9 @@ public final class ButterKnife {
   private static final String TAG = "ButterKnife";
   private static boolean debug = false;
 
+  //HashMap 是 Class与 ViewBinder之间的匹配
   static final Map<Class<?>, ViewBinder<Object>> BINDERS = new LinkedHashMap<>();
+  //实现一个ViewBinder的接口 但是方法体内是空得实现
   static final ViewBinder<Object> NOP_VIEW_BINDER = new ViewBinder<Object>() {
     @Override public void bind(Finder finder, Object target, Object source) { }
   };
@@ -116,9 +125,10 @@ public final class ButterKnife {
 
   /**
    * Bind annotated fields and methods in the specified {@link Activity}. The current content
+   * 绑定注解的成员变量与方法在指定的Activity中  这个目前的View内容被当做view的根节点
    * view is used as the view root.
    *
-   * @param target Target activity for view binding.
+   * @param target Target activity for view binding. 为了绑定view的目标的节点
    */
   public static void bind(@NonNull Activity target) {
     bind(target, target, Finder.ACTIVITY);
@@ -127,7 +137,7 @@ public final class ButterKnife {
   /**
    * Bind annotated fields and methods in the specified {@link View}. The view and its children
    * are used as the view root.
-   *
+   * 绑定拥有注解的成员变量以及方法在指定的View中  这个View以及他得子节点被用来作为View的父节点
    * @param target Target view for view binding.
    */
   @NonNull
@@ -184,10 +194,13 @@ public final class ButterKnife {
   }
 
   static void bind(@NonNull Object target, @NonNull Object source, @NonNull Finder finder) {
+    //首先通过反射机制 找到注解目标上面的类的
     Class<?> targetClass = target.getClass();
     try {
       if (debug) Log.d(TAG, "Looking up view binder for " + targetClass.getName());
+      //为指定的Class找到对应的ViewBinder的对象
       ViewBinder<Object> viewBinder = findViewBinderForClass(targetClass);
+      //然后调用viewBinder的bind方法去做绑定
       viewBinder.bind(finder, target, source);
     } catch (Exception e) {
       throw new RuntimeException("Unable to bind views for " + targetClass.getName(), e);
@@ -197,30 +210,37 @@ public final class ButterKnife {
   @NonNull
   private static ViewBinder<Object> findViewBinderForClass(Class<?> cls)
       throws IllegalAccessException, InstantiationException {
+    //从HashMap中找到对应的ViewBinder的对象
     ViewBinder<Object> viewBinder = BINDERS.get(cls);
     if (viewBinder != null) {
       if (debug) Log.d(TAG, "HIT: Cached in view binder map.");
       return viewBinder;
     }
+    //如果缓存中没有
     String clsName = cls.getName();
+    //如果包名是系统框架  禁止搜索  返回一个空实现的NOP_VIEW_BINDER
     if (clsName.startsWith("android.") || clsName.startsWith("java.")) {
       if (debug) Log.d(TAG, "MISS: Reached framework class. Abandoning search.");
       return NOP_VIEW_BINDER;
     }
     try {
+      //找到对应的类的内部类的ViewBinder的实现
       Class<?> viewBindingClass = Class.forName(clsName + "$$ViewBinder");
       //noinspection unchecked
+      //创建对应的ViewBinder的对象实例
       viewBinder = (ViewBinder<Object>) viewBindingClass.newInstance();
       if (debug) Log.d(TAG, "HIT: Loaded view binder class.");
     } catch (ClassNotFoundException e) {
       if (debug) Log.d(TAG, "Not found. Trying superclass " + cls.getSuperclass().getName());
       viewBinder = findViewBinderForClass(cls.getSuperclass());
     }
+    //同时将其加入到缓存中
     BINDERS.put(cls, viewBinder);
     return viewBinder;
   }
 
   /** Apply the specified {@code actions} across the {@code list} of views. */
+  //将指定的action应用到View得集合
   @SafeVarargs public static <T extends View> void apply(@NonNull List<T> list,
       @NonNull Action<? super T>... actions) {
     for (int i = 0, count = list.size(); i < count; i++) {

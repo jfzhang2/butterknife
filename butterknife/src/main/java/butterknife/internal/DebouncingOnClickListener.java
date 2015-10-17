@@ -6,6 +6,8 @@ import android.view.View;
  * A {@linkplain View.OnClickListener click listener} that debounces multiple clicks posted in the
  * same frame. A click on one button disables all buttons for that frame.
  */
+//在相同的数据帧 禁止View在一段时间内被多次点击
+  //这是一个抽象类
 public abstract class DebouncingOnClickListener implements View.OnClickListener {
   private static boolean enabled = true;
 

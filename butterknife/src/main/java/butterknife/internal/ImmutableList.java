@@ -5,8 +5,10 @@ import java.util.RandomAccess;
 
 /**
  * An immutable list of views which is lighter than {@code
+ * 一个不可改变的view的列表的集合比Collections.unmodifiableList要轻量级一些
  * Collections.unmodifiableList(new ArrayList<>(Arrays.asList(foo, bar)))}.
  */
+//支持快速随机访问   因为没有提供add与set方法  所以说是不可改变的
 final class ImmutableList<T> extends AbstractList<T> implements RandomAccess {
   private final T[] views;
 

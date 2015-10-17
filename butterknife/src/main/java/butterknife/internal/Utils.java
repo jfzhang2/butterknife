@@ -14,10 +14,12 @@ import java.util.List;
 
 @SuppressWarnings("deprecation") //
 public final class Utils {
+  //判断是否是支持v4包
   private static final boolean HAS_SUPPORT_V4 = hasSupportV4();
 
   private static boolean hasSupportV4() {
     try {
+      //通过反射判断有相应的class
       Class.forName("android.support.v4.graphics.drawable.DrawableCompat");
       return true;
     } catch (ClassNotFoundException ignored) {
@@ -27,6 +29,7 @@ public final class Utils {
 
   public static Drawable getTintedDrawable(Resources res, Resources.Theme theme,
       @DrawableRes int id, @AttrRes int tintAttrId) {
+    //这个功能是需要v4进行支持的
     if (HAS_SUPPORT_V4) {
       return SupportV4.getTintedDrawable(res, theme, id, tintAttrId);
     }

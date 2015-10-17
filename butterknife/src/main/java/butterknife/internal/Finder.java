@@ -6,8 +6,11 @@ import android.content.Context;
 import android.view.View;
 
 @SuppressWarnings("UnusedDeclaration") // Used by generated code.
+//由自动生成代码的框架使用
+//定义了框架的几个大类的枚举   每一个枚举实现了枚举类内部定义的方法
 public enum Finder {
   VIEW {
+      //对在View中寻找View的方法进行重写
     @Override protected View findView(Object source, int id) {
       return ((View) source).findViewById(id);
     }
@@ -19,6 +22,7 @@ public enum Finder {
     @Override protected String getResourceEntryName(Object source, int id) {
       final View view = (View) source;
       // In edit mode, getResourceEntryName() is unsupported due to use of BridgeResources
+        //在编辑模式下 getResourceEntryName由于桥接资源的使用  是不被支持的
       if (view.isInEditMode()) {
         return "<unavailable while editing>";
       }
@@ -26,6 +30,7 @@ public enum Finder {
     }
   },
   ACTIVITY {
+      //定义了Activity findViewById
     @Override protected View findView(Object source, int id) {
       return ((Activity) source).findViewById(id);
     }
@@ -44,6 +49,8 @@ public enum Finder {
     }
   };
 
+    //对于枚举类自身而言  定义的是泛型  其内部每一个单独的枚举能够对已经定义的方法额模板进行重载
+
   public <T> T findRequiredView(Object source, int id, String who) {
     T view = findOptionalView(source, id, who);
     if (view == null) {
@@ -59,7 +66,7 @@ public enum Finder {
     }
     return view;
   }
-
+    //通过可选择的View 来找到真正的获取View的方式
   public <T> T findOptionalView(Object source, int id, String who) {
     View view = findView(source, id);
     return castView(view, id, who);
@@ -101,11 +108,14 @@ public enum Finder {
     }
   }
 
+    //抽象类
   protected String getResourceEntryName(Object source, int id) {
     return getContext(source).getResources().getResourceEntryName(id);
   }
 
+    //抽象方法 findView
   protected abstract View findView(Object source, int id);
 
+    //抽象方法获取getContext
   public abstract Context getContext(Object source);
 }
